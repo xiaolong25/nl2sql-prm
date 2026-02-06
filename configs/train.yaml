@@ -1,0 +1,27 @@
+# configs/train.yaml
+
+seed: 42
+
+model:
+  name: Qwen/Qwen2-7B
+  base_model_path: /root/autodl-tmp/pretrain_models/Public_Models/Qwen2.5-7B-Instruct
+  tokenizer_path: /root/autodl-tmp/pretrain_models/Public_Models/Qwen2.5-7B-Instruct
+  freeze_base: true
+
+data:
+  train_path: /root/autodl-tmp/git/nl2sql_prm/data/processed/BIRD_with_qwen_reasoning_with_deepseek_analysis.json
+  test_path: /root/autodl-tmp/git/nl2sql_prm/data/processed/BIRD_with_qwen_reasoning_with_deepseek_analysis.json
+  max_length: 2048
+  batch_size: 16
+  shuffle: true
+  num_workers: 4
+
+training:
+  num_epochs: 3
+  lr: 1.0e-5
+  weight_decay: 1.0e-2
+  warmup_ratio: 0.05
+
+logging:
+  loss_figure_path: outputs/figures/loss.png
+  checkpoint_dir: checkpoints/

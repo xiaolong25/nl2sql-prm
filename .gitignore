@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# virtual env
+venv/
+.env/
+
+# logs
+logs/
+*.log
+
+# datasets
+data/
+datasets/
+
+# models
+*.pt
+*.ckpt
+*.bin
+*.safetensors
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
