@@ -1,3 +1,16 @@
+# ================================================================
+# File: prm_trainer.py
+# Author: Xiaolong Ji
+#
+# Description:
+#   Trainer implementation for PRM.
+#   Handles:
+#     - forward / backward
+#     - optimizer & scheduler stepping
+#     - step-level TensorBoard logging
+# ================================================================
+
+
 from tqdm import tqdm
 import torch
 
@@ -10,11 +23,15 @@ class PRMTrainer:
         self.scheduler = scheduler
         self.device = device
 
-    def train_epoch(self, dataloader):
+    def train_epoch(self, dataloader, tb_logger=None, epoch=None):
         self.model.train()
         losses = []
 
-        for batch in tqdm(dataloader, desc="Training"):
+        for step, batch in enumerate(
+            tqdm(dataloader, desc=f"Training (epoch={epoch})")
+        ):
+            # if(step>2):
+            #     break
             # ---- move to device ----
             input_ids = batch["input_ids"].to(self.device)
             attention_mask = batch["attention_mask"].to(self.device)
@@ -33,6 +50,15 @@ class PRMTrainer:
             self.optimizer.step()
             self.scheduler.step()
 
-            losses.append(loss.item())
+            loss_value = loss.item()
+            losses.append(loss_value)
 
-        return sum(losses) / len(losses)
+            # ---- TensorBoard: step-level loss ----
+            if tb_logger is not None and epoch is not None:
+                global_step = epoch * len(dataloader) + step
+                tb_logger.log_train_step_loss(
+                    loss_value,
+                    global_step
+                )
+
+        return sum(losses) / max(len(losses), 1)

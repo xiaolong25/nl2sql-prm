@@ -16,6 +16,8 @@ def evaluate_prm_processbench(
     dataloader,
     device,
     threshold=0.5,
+    writer=None,
+    epoch=None,
 ):
     """
     ProcessBench-style evaluation for PRM (5-step NL2SQL)
@@ -35,7 +37,7 @@ def evaluate_prm_processbench(
     all_step_scores = []
     all_step_labels = []
 
-    for batch in tqdm(dataloader, desc="Evaluating PRM"):
+    for step, batch in enumerate(tqdm(dataloader, desc="Evaluating PRM")):
         """
         Expected batch format:
         {
@@ -44,7 +46,8 @@ def evaluate_prm_processbench(
             "labels": [K]
         }
         """
-
+        # if(step>2):
+        #     break
         input_ids = batch["input_ids"].to(device)
         attention_mask = batch["attention_mask"].to(device)
         labels = batch["labels"].to(device).long()   # [K]
@@ -65,11 +68,9 @@ def evaluate_prm_processbench(
 
         total_samples += 1
 
-        # First Error Accuracy
         if gt_first_error == pred_first_error:
             correct_first_error += 1
 
-        # Error-only metrics
         if gt_first_error is not None:
             gt_has_error_cnt += 1
 
@@ -96,10 +97,20 @@ def evaluate_prm_processbench(
         if gt_has_error_cnt > 0 else 0.0
     )
 
-    return {
+    metrics = {
         "first_error_acc": first_error_acc,
         "step_auc": step_auc,
         "false_early_rate": false_early_rate,
         "miss_rate": miss_rate,
         "num_samples": total_samples,
     }
+
+    # ---- TensorBoard logging ----
+    if writer is not None and epoch is not None:
+        writer.add_scalar("eval/step_auc", step_auc, epoch)
+        writer.add_scalar("eval/first_error_acc", first_error_acc, epoch)
+        writer.add_scalar("eval/false_early_rate", false_early_rate, epoch)
+        writer.add_scalar("eval/miss_rate", miss_rate, epoch)
+        writer.add_scalar("eval/num_samples", total_samples, epoch)
+
+    return metrics
