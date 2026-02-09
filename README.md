@@ -1,12 +1,3 @@
-好，这个我给你**直接写一份可以“原样丢到 GitHub”的 README.md**，风格偏**研究型 / 工程型结合**，既不水，也不装，评审、同方向研究者一眼能看懂你在干嘛 👍
-内容我已经按你现在这个工程的真实结构来写了（PRM + NL2SQL + step-level 监督）。
-
----
-
-下面是 **完整 README.md**（你可以直接复制）👇
-
----
-
 # NL2SQL-PRM
 
 🚀 **NL2SQL with Process Reward Model (PRM)**
