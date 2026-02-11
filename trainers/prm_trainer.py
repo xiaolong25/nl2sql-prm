@@ -1,13 +1,10 @@
 # ================================================================
 # File: prm_trainer.py
 # Author: Xiaolong Ji
-#
+# Date: 2026/02/06
+# 
 # Description:
 #   Trainer implementation for PRM.
-#   Handles:
-#     - forward / backward
-#     - optimizer & scheduler stepping
-#     - step-level TensorBoard logging
 # ================================================================
 
 
@@ -23,7 +20,7 @@ class PRMTrainer:
         self.scheduler = scheduler
         self.device = device
 
-    def train_epoch(self, dataloader, tb_logger=None, epoch=None):
+    def train_epoch(self, dataloader, tb_logger=None, epoch=None, cfg=None):
         self.model.train()
         losses = []
 
@@ -33,13 +30,18 @@ class PRMTrainer:
             # if(step>2):
             #     break
             # ---- move to device ----
-            input_ids = batch["input_ids"].to(self.device)
-            attention_mask = batch["attention_mask"].to(self.device)
-            labels = batch["labels"].to(self.device).float()
-
-            # ---- forward ----
-            logits = self.model(input_ids, attention_mask)
-            logits = logits.squeeze(-1)  # (B,)
+            if not cfg["training"]["train_by_PreProcess_data"]:
+                input_ids = batch["input_ids"].to(self.device)
+                attention_mask = batch["attention_mask"].to(self.device)
+                labels = batch["labels"].to(self.device).float()
+                # ---- forward ----
+                logits = self.model(input_ids, attention_mask)
+                logits = logits.squeeze(-1)  # (B,)
+            else:
+                features = batch["features"].to(self.device) 
+                labels = batch["labels"].to(self.device).float()
+                # ---- forward ----
+                logits = self.model(features)
 
             # ---- loss ----
             loss = self.loss_fn(logits, labels)

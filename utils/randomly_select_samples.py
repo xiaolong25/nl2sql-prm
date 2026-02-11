@@ -5,11 +5,11 @@ import os
 # ===============================
 # 配置区
 # ===============================
-INPUT_JSON = "/root/autodl-tmp/git/nl2sql_prm/data/processed/BIRD_with_qwen_reasoning_with_deepseek_analysis.json"
-OUTPUT_DIR = "/root/autodl-tmp/git/nl2sql_prm/data/processed/test2"
+INPUT_JSON = "/root/autodl-tmp/git/nl2sql_prm/data/processed/BIRD_with_qwen_reasoning_prefix_eval_v3.json"
+OUTPUT_DIR = "/root/autodl-tmp/git/nl2sql_prm/data/processed/test3"
 
-TRAIN_SIZE = 5000
-TEST_SIZE = 1002
+TRAIN_SIZE = 800
+TEST_SIZE = 200
 TOTAL_SIZE = TRAIN_SIZE + TEST_SIZE
 
 RANDOM_SEED = 42

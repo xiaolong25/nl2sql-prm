@@ -1,5 +1,3 @@
-# evaluation/evaluate_prm.py
-
 import torch
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score
@@ -18,6 +16,7 @@ def evaluate_prm_processbench(
     threshold=0.5,
     writer=None,
     epoch=None,
+    cfg=None
 ):
     """
     ProcessBench-style evaluation for PRM (5-step NL2SQL)
@@ -27,12 +26,12 @@ def evaluate_prm_processbench(
 
     model.eval()
 
-    total_samples = 0
-    correct_first_error = 0
+    total_samples = 0           # 总的样本数量
+    correct_first_error = 0     # 判对第一个错误步骤的数量，用于计算first_error_acc
 
-    gt_has_error_cnt = 0
-    false_early_cnt = 0
-    miss_error_cnt = 0
+    gt_has_error_cnt = 0        # 真实步骤是错误的数量 - 计算recall
+    false_early_cnt = 0         # 过早判步骤为错 - 惩罚错了（将正确步骤判错）
+    miss_error_cnt = 0          # GT 有错误，但模型完全没检测到
 
     all_step_scores = []
     all_step_labels = []
@@ -48,13 +47,19 @@ def evaluate_prm_processbench(
         """
         # if(step>2):
         #     break
-        input_ids = batch["input_ids"].to(device)
-        attention_mask = batch["attention_mask"].to(device)
-        labels = batch["labels"].to(device).long()   # [K]
-
-        # ---- forward ----
-        scores = model(input_ids, attention_mask)    # [K] or [K,1]
-        scores = scores.squeeze(-1)
+        if not cfg["training"]["train_by_PreProcess_data"]:
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device).long()   # [K]
+            # ---- forward ----
+            scores = model(input_ids, attention_mask)    # [K] or [K,1]
+            scores = scores.squeeze(-1)
+        else:
+            features = batch["features"].to(device) 
+            labels = batch["labels"].to(device).float().view(-1)
+            # ---- forward ----
+            scores = model(features)
+            scores = scores.view(-1)
 
         # ---- collect for AUC ----
         all_step_scores.extend(scores.cpu().tolist())

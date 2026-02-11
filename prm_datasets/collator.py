@@ -23,3 +23,47 @@ class PRMCollator:
             "attention_mask": attention_mask,
             "labels": labels
         }
+
+
+class PRMEvalCollator:
+    def __init__(self, pad_token_id):
+        self.pad_token_id = pad_token_id
+
+    def __call__(self, batch):
+        """
+        batch size MUST be 1
+        """
+        assert len(batch) == 1, "Eval batch_size must be 1"
+
+        sample = batch[0]
+
+        input_ids = pad_sequence(
+            sample["input_ids"],
+            batch_first=True,
+            padding_value=self.pad_token_id
+        )  # [K, L]
+
+        attention_mask = pad_sequence(
+            sample["attention_mask"],
+            batch_first=True,
+            padding_value=0
+        )  # [K, L]
+
+        # labels = sample["labels"]  # [K]
+        labels = torch.tensor(sample["labels"], dtype=torch.long)  # [K]
+
+        return {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "labels": labels
+        }
+
+
+class PRMFeatureCollator:
+    def __call__(self, batch):
+        features = torch.stack([b["features"] for b in batch])
+        labels = torch.stack([b["labels"] for b in batch])
+        return {
+            "features": features,
+            "labels": labels
+        }

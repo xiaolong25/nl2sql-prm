@@ -9,24 +9,31 @@ model:
   freeze_base: true
 
 data:
-  train_path: /root/autodl-tmp/git/nl2sql_prm/data/processed/test2/train.json
-  test_path: /root/autodl-tmp/git/nl2sql_prm/data/processed/test2/test.json
-  max_length: 2048
-  batch_size: 20
+  train_path: /root/autodl-tmp/git/nl2sql_prm/data/processed/test3/train.json
+  test_path: /root/autodl-tmp/git/nl2sql_prm/data/processed/test3/test.json
+  max_length: 4096
+  batch_size: 8
+  eval_batch: 1
   shuffle: true
   num_workers: 4
 
+pre_process:
+  train_pt_save_path: /root/autodl-tmp/git/nl2sql_prm/data/Qwen_out/prm_train.pt
+  test_pt_save_path: /root/autodl-tmp/git/nl2sql_prm/data/Qwen_out/prm_test.pt
+
 training:
-  num_epochs: 10
+  num_epochs: 50
   lr: 5.0e-6
   weight_decay: 5.0e-3
   warmup_ratio: 0.1
+  train_by_PreProcess_data: true
 
 logging:
-  loss_figure_path: outputs/figures/loss.png
-  checkpoint_dir: checkpoints/
-  log_file: outputs/logs/loss.log
-  tensorboard_dir: outputs/tensorboard/
+  out_put_path: outputs/exps
+  loss_figure_path: loss.png
+  checkpoint_dir: checkpoints
+  log_file: train.log
+  tensorboard_dir: tensorboard
 
 evaluate:
   threshold: 0.5
